@@ -1,0 +1,15 @@
+#!/usr/bin/python3
+
+import httplib2
+import sys
+
+cli = httplib2.Http()
+
+(header, content) = cli.request(sys.argv[1], 'HEAD');
+
+if header['content-location']:
+    print(header['content-location'])
+elif 301 == header.status or 302 == header.status:
+    print("(" + str(header.status) + ") redirected to " + header.location);
+else:
+    print("just a " + str(header.status))
