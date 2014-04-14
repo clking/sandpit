@@ -1,15 +1,39 @@
 #!/usr/bin/python3
 
+import argparse
 import httplib2
 import sys
 
+parser = argparse.ArgumentParser()
+parser.add_argument('-v', '--verbose', action = 'store_true', help = 'increase output verbosity')
+parser.add_argument('-H', '--header', action = 'store_true', help = 'print HTTP headers')
+parser.add_argument('url', help = 'url to rip', type = str)
+args = parser.parse_args()
+
 cli = httplib2.Http()
 
-(header, content) = cli.request(sys.argv[1], 'HEAD');
+header, content = cli.request(args.url, 'HEAD');
+
+if args.verbose:
+    print('resolving ' + args.url)
+
+if args.header:
+    for k in sorted(header.keys()):
+        v = header[k]
+        print(k, v, sep = ': ')
+    print()
 
 if header['content-location']:
-    print(header['content-location'])
+    if args.verbose:
+        print('(' + str(header.status) + ") ", end = '')
+        print("content location @ ", end = '')
+    destination = header['content-location']
 elif 301 == header.status or 302 == header.status:
-    print("(" + str(header.status) + ") redirected to " + header.location);
+    if args.verbose:
+        print("(" + str(header.status) + ") ", end = '')
+        print("redirected to ", end = '')
+    destination = header.location
 else:
-    print("just a " + str(header.status))
+    print("nothing, just a ")
+    destination = header.status
+print(destination)
