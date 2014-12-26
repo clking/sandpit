@@ -1,8 +1,9 @@
 #!/usr/bin/python3
 
 import argparse
-import httplib2
+import socket
 import sys
+import urllib.parse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-v', '--verbose', action = 'store_true', help = 'increase output verbosity')
@@ -10,30 +11,74 @@ parser.add_argument('-H', '--header', action = 'store_true', help = 'print HTTP 
 parser.add_argument('url', help = 'url to rip', type = str)
 args = parser.parse_args()
 
-cli = httplib2.Http()
-
-header, content = cli.request(args.url, 'HEAD');
-
 if args.verbose:
     print('resolving ' + args.url)
 
-if args.header:
-    for k in sorted(header.keys()):
-        v = header[k]
-        print(k, v, sep = ': ')
-    print()
+url = urllib.parse.urlparse(args.url)
 
-if header['content-location']:
+host = url.netloc.split(':')
+hostname = host[0]
+if len(host) < 2:
+    port = 80
+else:
+    port = int(host[1])
+
+if 'http' != url.scheme:
+    print('url scheme {0} not currently supported'.format(url.scheme))
+    sys.exit(1)
+
+method = 'HEAD'
+uri = url.path
+if url.query:
+    uri += '?' + url.query
+
+sd = socket.socket()
+if args.verbose:
+    print('connecting to', hostname + ':' + str(port))
+sd.connect((hostname, port))
+
+request = '{0} {1} HTTP/1.1\r\nHost: {2}\r\n\r\n'.format(method, uri, hostname);
+b_req = bytes(request, 'UTF-8')
+if args.verbose:
+    print('sending request as following:')
+    print(request)
+sd.sendall(b_req)
+
+fp = sd.makefile('rb')
+
+header = {}
+first_line = str(fp.readline(8192), 'iso-8859-1')
+version, status, message = str(first_line).split(' ', 2)
+header['version'] = str(version)
+header['status'] = int(status)
+header['http_message'] = message.strip('\r\n')
+
+while fp.readable():
+    line = str(fp.readline(8192), 'iso-8859-1').strip()
+    if args.header:
+        print(line)
+    if not line:
+        break
+
+    field, value = str(line).split(': ')
+    header[str(field)] = str(value).lower()
+
+fp.close()
+sd.close()
+del sd
+
+if 'content-location' in header:
     if args.verbose:
         print('(' + str(header.status) + ") ", end = '')
         print("content location @ ", end = '')
     destination = header['content-location']
-elif 301 == header.status or 302 == header.status:
+elif 301 == header['status'] or 302 == header['status']:
     if args.verbose:
-        print("(" + str(header.status) + ") ", end = '')
+        print("(" + str(header['status']) + ") ", end = '')
         print("redirected to ", end = '')
-    destination = header.location
+    destination = header['Location']
 else:
-    print("nothing, just a ")
-    destination = header.status
+    print("nothing, just a ", end = '')
+    destination = header['status']
+
 print(destination)
