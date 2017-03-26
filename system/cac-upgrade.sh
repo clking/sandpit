@@ -7,7 +7,6 @@ userid=clk
 # need an interactive shell
 if [ -z $PS1 ]
 then
-else
     echo an interactive shell is needed
     exit 3
 fi
