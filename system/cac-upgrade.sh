@@ -1,20 +1,20 @@
 #!/bin/sh
 
-UID=
-GID=
-USERID=clk
+uid=
+gid=
+userid=clk
 
 # can only be run as root
-uid=`/usr/bin/id -u`
-if [ "$uid" -gt 0 ]
+id=`/usr/bin/id -u`
+if [ "$id" -gt 0 ]
 then
     echo can only be run as root
     exit 1
 fi
 echo running unattended system setup and uprgade as root
 
-os=`uname -o | grep -i Linux`
-if [[ "$os" == "" ]]; then
+os=`uname | grep -i Linux`
+if [ "$os" = "" ]; then
     # more precisely, Ubuntu
     echo this script works under Linux only
     exit 2
@@ -34,9 +34,6 @@ echo changing clk\'s password
 echo installing git and zsh
 /usr/bin/apt-get -y install git zsh
 /usr/bin/chsh -s /bin/zsh clk
-
-echo installing oh-my-zsh
-/bin/su clk -c /bin/sh -c "cd /home/clk ; /usr/bin/curl $(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh) ; exit"
 
 read -p 'provide ssh public key here: ' key
 /bin/mkdir /home/clk/.ssh
@@ -66,14 +63,22 @@ hardstatus alwayslastline
 hardstatus string "%{= KW} %H [%\`] %{= Kw}|%{-} %-Lw%{= bW}%n%f %t%{-}%+Lw %=%C%a %Y-%M-%d"
 HERE
 
+echo disallowing root ssh login
+/bin/sed 's/PermitRootLogin\s\+yes/PermitRootLogin no/' /etc/ssh/sshd_config > /tmp/sshd_config
+/bin/mv /tmp/sshd_config /etc/ssh/sshd_config
+
 echo generating a screen rc to open up and run
 /bin/cat <<HERE > /tmp/screen.rc
 sessionname upgrade
 
 screen top -c
 screen /tmp/upgrade.sh
+screen /bin/su clk -c /bin/sh -c "cd /home/clk ; /usr/bin/curl $(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 HERE
 
 # use screen here instead of tmux because the upgrade breaks tmux from resuming
 echo entering screen to start system upgrade process
 /usr/bin/screen -c /tmp/screen.rc
+
+echo installing oh-my-zsh
+
