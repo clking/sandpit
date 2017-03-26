@@ -1,5 +1,9 @@
 #!/bin/sh
 
+export LC_ALL=C
+export LANG=C
+export LANGUAGE=C
+
 uid=
 gid=
 userid=clk
