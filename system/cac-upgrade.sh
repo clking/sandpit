@@ -45,16 +45,16 @@ echo creating group and user account clk
 echo changing clk\'s password
 /usr/bin/passwd clk
 
-echo installing git and zsh
-/usr/bin/apt-get -y install git zsh
-/usr/bin/chsh -s /bin/zsh clk
-
 read -p 'provide ssh public key here: ' key
 /bin/mkdir /home/clk/.ssh
 /bin/chmod 700 /home/clk/.ssh
 /bin/cat <<HERE > /home/clk/.ssh/authorized_keys
 $key
 HERE
+
+echo installing git and zsh
+/usr/bin/apt-get -y install git zsh
+/usr/bin/chsh -s /bin/zsh clk
 
 echo making up /etc/sudoers
 /bin/cat <<HERE >> /etc/sudoers
