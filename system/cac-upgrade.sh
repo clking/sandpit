@@ -54,6 +54,7 @@ echo preparing upgrade script
 /usr/bin/apt-get -y dist-upgrade
 /usr/bin/do-release-upgrade -y
 HERE
+/bin/chmod 700 /tmp/upgrade.sh
 
 echo adding some sauce to /etc/screenrc to get a status line
 /bin/cat <<HERE >> /etc/screenrc
@@ -66,6 +67,7 @@ HERE
 echo disallowing root ssh login
 /bin/sed 's/PermitRootLogin\s\+yes/PermitRootLogin no/' /etc/ssh/sshd_config > /tmp/sshd_config
 /bin/mv /tmp/sshd_config /etc/ssh/sshd_config
+/usr/sbin/service ssh reload
 
 echo generating a screen rc to open up and run
 /bin/cat <<HERE > /tmp/screen.rc
@@ -79,6 +81,3 @@ HERE
 # use screen here instead of tmux because the upgrade breaks tmux from resuming
 echo entering screen to start system upgrade process
 /usr/bin/screen -c /tmp/screen.rc
-
-echo installing oh-my-zsh
-
