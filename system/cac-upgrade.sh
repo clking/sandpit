@@ -5,11 +5,14 @@ gid=
 userid=clk
 
 # need an interactive shell
-if [ -z $PS1 ]
-then
-    echo an interactive shell is needed
-    exit 3
-fi
+case $- in
+    *i*)
+        ;;
+
+    *)
+        echo an interactive shell is needed
+        exit 3
+esac
 
 # can only be run as root
 id=`/usr/bin/id -u`
