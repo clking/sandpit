@@ -58,7 +58,7 @@ echo installing git and zsh
 /usr/bin/chsh -s /bin/zsh clk
 
 echo postpone making up /etc/sudoers
-echo <<PP > /root/mksudoers
+/bin/cat <<PP > /root/mksudoers
 /bin/cat <<HERE >> /etc/sudoers
 %clk   ALL=(ALL:ALL) NOPASSWD: ALL
 HERE
@@ -73,7 +73,7 @@ echo preparing upgrade script
 /usr/bin/apt-get -y dist-upgrade
 /usr/bin/do-release-upgrade -y
 
-echo <<PP >> /etc/rc.local
+/bin/cat <<PP >> /etc/rc.local
 
 /bin/sh /root/mksudoers
 PP
