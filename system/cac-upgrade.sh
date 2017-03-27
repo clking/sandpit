@@ -8,15 +8,8 @@ uid=
 gid=
 userid=clk
 
-# need an interactive shell
-case $- in
-    *i*)
-        ;;
-
-    *)
-        echo an interactive shell is needed
-        exit 3
-esac
+echo an interactive shell is needed and edit $0 manually
+exit 3
 
 # can only be run as root
 id=`/usr/bin/id -u`
