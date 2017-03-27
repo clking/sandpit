@@ -4,10 +4,11 @@ export LC_ALL=C
 export LANG=C
 export LANGUAGE=C
 
-uid=
-gid=
+uid=5566
+gid=9487
 userid=clk
 
+# remove this manually
 echo an interactive shell is needed and edit $0 manually
 exit 3
 
@@ -18,15 +19,15 @@ then
     echo can only be run as root
     exit 1
 fi
-echo running unattended system setup and uprgade as root
+echo running (mostly) unattended system setup and uprgade as root
 
-os=`uname | grep -i Linux`
-if [ "$os" = "" ]; then
+os=`/usr/bin/uname -a | /usr/bin/grep -i Linux`
+if [ -z $os ]; then
     # more precisely, Ubuntu
     echo this script works under Linux only
     exit 2
 fi
-echo OS is $os, good
+echo OS is $os, looks good
 
 echo changing root password
 /usr/bin/passwd root
@@ -61,17 +62,29 @@ PP
 
 echo preparing upgrade script
 /bin/cat <<HERE > /tmp/upgrade.sh
-/usr/bin/apt-get update
-/usr/bin/apt-get -y upgrade
-/usr/bin/apt-get -y dist-upgrade
-/usr/bin/do-release-upgrade -y
+#!/bin/sh
 
+echo updating pkg list...
+/usr/bin/apt-get update
+
+echo upgrading packages....
+/usr/bin/apt-get -y upgrade
+
+echo upgrading kernel
+/usr/bin/apt-get -y dist-upgrade
+
+echo release upgrading
+/usr/bin/do-release-upgrade -m server
+
+echo setting up post-setups in /etc/rc.local
 /bin/cat <<PP >> /etc/rc.local
 
 /bin/sh /root/mksudoers
 PP
 
-/sbin/reboot
+echo about to reboot....
+if it does not happen, type[1m /sbin/reboot [mto do it
+# /sbin/reboot
 HERE
 /bin/chmod 700 /tmp/upgrade.sh
 
@@ -92,7 +105,7 @@ echo generating a screen rc to open up and run
 /bin/cat <<HERE > /tmp/screen.rc
 sessionname upgrade
 
-screen top -c
+screen top -c -d 1
 screen /tmp/upgrade.sh
 screen /bin/su clk -c /bin/sh -c 'cd /home/clk ; /bin/sh -c "\$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"'
 HERE
