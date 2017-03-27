@@ -51,15 +51,20 @@ read -p 'provide ssh public key here: ' key
 /bin/cat <<HERE > /home/clk/.ssh/authorized_keys
 $key
 HERE
+/bin/chown -R clk:clk /home/clk/.ssh
 
 echo installing git and zsh
 /usr/bin/apt-get -y install git zsh
 /usr/bin/chsh -s /bin/zsh clk
 
-echo making up /etc/sudoers
+echo postpone making up /etc/sudoers
+echo <<PP > /root/mksudoers
 /bin/cat <<HERE >> /etc/sudoers
 %clk   ALL=(ALL:ALL) NOPASSWD: ALL
 HERE
+
+/bin/rm -f /root/mksudoers
+PP
 
 echo preparing upgrade script
 /bin/cat <<HERE > /tmp/upgrade.sh
@@ -67,6 +72,13 @@ echo preparing upgrade script
 /usr/bin/apt-get -y upgrade
 /usr/bin/apt-get -y dist-upgrade
 /usr/bin/do-release-upgrade -y
+
+echo <<PP >> /etc/rc.local
+
+/bin/sh /root/mksudoers
+PP
+
+/sbin/reboot
 HERE
 /bin/chmod 700 /tmp/upgrade.sh
 
