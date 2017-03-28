@@ -19,7 +19,7 @@ then
     echo can only be run as root
     exit 1
 fi
-echo running (mostly) unattended system setup and uprgade as root
+echo running \(mostly\) unattended system setup and uprgade as root
 
 os=`/usr/bin/uname -a | /usr/bin/grep -i Linux`
 if [ -z $os ]; then
