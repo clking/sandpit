@@ -79,6 +79,10 @@ echo upgrading packages....
 echo upgrading kernel
 /usr/bin/apt-get -y dist-upgrade
 
+echo cleaning up space for release upgrade
+/usr/bin/apt-get -y autoremove
+/usr/bin/apt-get -y clean
+
 echo terminating screen
 /usr/bin/killall top zsh
 HERE
