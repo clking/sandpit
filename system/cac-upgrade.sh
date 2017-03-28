@@ -80,7 +80,7 @@ echo upgrading kernel
 /usr/bin/apt-get -y dist-upgrade
 
 echo terminating screen
-/usr/bin/killall top
+/usr/bin/killall top zsh
 HERE
 /bin/chmod 700 /tmp/upgrade.sh
 
@@ -92,17 +92,13 @@ hardstatus alwayslastline
 hardstatus string "%{= KW} %H [%\`] %{= Kw}|%{-} %-Lw%{= bW}%n%f %t%{-}%+Lw %=%C%a %Y-%M-%d"
 HERE
 
-echo disallowing root ssh login
-/bin/sed 's/PermitRootLogin\s\+yes/PermitRootLogin no/' /etc/ssh/sshd_config > /tmp/sshd_config
-/bin/mv /tmp/sshd_config /etc/ssh/sshd_config
-
 echo generating a screen rc to open up and run
 /bin/cat <<HERE > /tmp/screen.rc
 sessionname upgrade
 
 screen top -c -d 1
 screen /tmp/upgrade.sh
-screen /bin/su clk -c /bin/sh -c 'cd /home/clk ; /bin/sh -c "\$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"'
+screen /bin/su clk -c /bin/sh -c 'cd /home/clk ; /bin/sh -c "\$(/usr/bin/curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"'
 HERE
 
 # use screen here instead of tmux because the upgrade breaks tmux from resuming
@@ -111,6 +107,10 @@ echo entering screen to start system upgrade process
 
 echo release upgrading
 /usr/bin/do-release-upgrade -m server
+
+echo disallowing root ssh login
+/bin/sed 's/PermitRootLogin\s\+yes/PermitRootLogin no/' /etc/ssh/sshd_config > /tmp/sshd_config
+/bin/mv /tmp/sshd_config /etc/ssh/sshd_config
 
 echo all done and about to reboot, type[1m /sbin/reboot [mto do it
 # /sbin/reboot
