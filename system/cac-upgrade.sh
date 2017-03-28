@@ -99,7 +99,6 @@ HERE
 echo disallowing root ssh login
 /bin/sed 's/PermitRootLogin\s\+yes/PermitRootLogin no/' /etc/ssh/sshd_config > /tmp/sshd_config
 /bin/mv /tmp/sshd_config /etc/ssh/sshd_config
-/usr/sbin/service ssh reload
 
 echo generating a screen rc to open up and run
 /bin/cat <<HERE > /tmp/screen.rc
