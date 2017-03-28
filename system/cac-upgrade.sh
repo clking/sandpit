@@ -84,7 +84,7 @@ echo cleaning up space for release upgrade
 /usr/bin/apt-get -y clean
 
 echo terminating screen
-/usr/bin/killall top zsh
+/usr/bin/killall -9 top zsh
 HERE
 /bin/chmod 700 /tmp/upgrade.sh
 
