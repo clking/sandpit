@@ -64,6 +64,12 @@ echo preparing upgrade script
 /bin/cat <<HERE > /tmp/upgrade.sh
 #!/bin/sh
 
+echo setting up post-setups in /etc/rc.local
+/bin/cat <<PP >> /etc/rc.local
+
+/bin/sh /root/mksudoers
+PP
+
 echo updating pkg list...
 /usr/bin/apt-get update
 
@@ -73,18 +79,8 @@ echo upgrading packages....
 echo upgrading kernel
 /usr/bin/apt-get -y dist-upgrade
 
-echo release upgrading
-/usr/bin/do-release-upgrade -m server
-
-echo setting up post-setups in /etc/rc.local
-/bin/cat <<PP >> /etc/rc.local
-
-/bin/sh /root/mksudoers
-PP
-
-echo about to reboot....
-if it does not happen, type[1m /sbin/reboot [mto do it
-# /sbin/reboot
+echo terminating screen
+/usr/bin/killall top
 HERE
 /bin/chmod 700 /tmp/upgrade.sh
 
@@ -112,3 +108,9 @@ HERE
 # use screen here instead of tmux because the upgrade breaks tmux from resuming
 echo entering screen to start system upgrade process
 /usr/bin/screen -c /tmp/screen.rc
+
+echo release upgrading
+/usr/bin/do-release-upgrade -m server
+
+echo all done and about to reboot, type[1m /sbin/reboot [mto do it
+# /sbin/reboot
