@@ -21,7 +21,7 @@ then
 fi
 echo running \(mostly\) unattended system setup and uprgade as root
 
-os=`/usr/bin/uname -a | /usr/bin/grep -i Linux`
+os=`/bin/uname -a | /bin/grep -i Linux`
 if [ -z $os ]; then
     # more precisely, Ubuntu
     echo this script works under Linux only
