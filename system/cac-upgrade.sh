@@ -105,12 +105,18 @@ screen /tmp/upgrade.sh
 screen /bin/su clk -c /bin/sh -c 'cd /home/clk ; /bin/sh -c "\$(/usr/bin/curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"'
 HERE
 
+echo making up an alt boot dir
+/bin/mkdir /boot.alt
+/sbin/mount_nullfs /boot.alt /boot
+
 # use screen here instead of tmux because the upgrade breaks tmux from resuming
 echo entering screen to start system upgrade process
 /usr/bin/screen -c /tmp/screen.rc
 
 echo release upgrading
 /usr/bin/do-release-upgrade -m server
+
+/sbin/umount /boot && /bin/mv /boot /boot.old && /bin/mv /bin/mv /boot.alt /boot
 
 echo disallowing root ssh login
 /bin/sed 's/PermitRootLogin\s\+yes/PermitRootLogin no/' /etc/ssh/sshd_config > /tmp/sshd_config
