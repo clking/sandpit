@@ -51,13 +51,17 @@ echo installing git and zsh
 /usr/bin/apt-get -y install git zsh
 /usr/bin/chsh -s /bin/zsh clk
 
-echo postpone making up /etc/sudoers
-/bin/cat <<PP > /root/mksudoers
+echo generating post-setup script after reboot
+/bin/cat <<PP > /root/post-setup
+echo adding sudoers
 /bin/cat <<HERE >> /etc/sudoers
 %clk   ALL=(ALL:ALL) NOPASSWD: ALL
 HERE
 
-/bin/rm -f /root/mksudoers
+echo upgrading kernel
+/usr/bin/apt-get -y dist-upgrade
+
+/bin/rm -f /root/post-setup
 PP
 
 echo preparing upgrade script
@@ -67,7 +71,7 @@ echo preparing upgrade script
 echo setting up post-setups in /etc/rc.local
 /bin/cat <<PP >> /etc/rc.local
 
-/bin/sh /root/mksudoers
+/bin/sh /root/post-setup
 PP
 
 echo updating pkg list...
@@ -75,9 +79,6 @@ echo updating pkg list...
 
 echo upgrading packages....
 /usr/bin/apt-get -y upgrade
-
-echo upgrading kernel
-/usr/bin/apt-get -y dist-upgrade
 
 echo cleaning up space for release upgrade
 /usr/bin/apt-get -y autoremove
@@ -105,18 +106,12 @@ screen /tmp/upgrade.sh
 screen /bin/su clk -c /bin/sh -c 'cd /home/clk ; /bin/sh -c "\$(/usr/bin/curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"'
 HERE
 
-echo making up an alt boot dir
-/bin/mkdir /boot.alt
-/sbin/mount_nullfs /boot.alt /boot
-
 # use screen here instead of tmux because the upgrade breaks tmux from resuming
 echo entering screen to start system upgrade process
 /usr/bin/screen -c /tmp/screen.rc
 
 echo release upgrading
 /usr/bin/do-release-upgrade -m server
-
-/sbin/umount /boot && /bin/mv /boot /boot.old && /bin/mv /bin/mv /boot.alt /boot
 
 echo disallowing root ssh login
 /bin/sed 's/PermitRootLogin\s\+yes/PermitRootLogin no/' /etc/ssh/sshd_config > /tmp/sshd_config
