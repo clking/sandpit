@@ -52,17 +52,24 @@ echo installing git and zsh
 /usr/bin/chsh -s /bin/zsh clk
 
 echo generating post-setup script after reboot
-/bin/cat <<PP > /root/post-setup
+/bin/cat <<PP > /etc/init.d/post-setup
 echo adding sudoers
 /bin/cat <<HERE >> /etc/sudoers
 %clk   ALL=(ALL:ALL) NOPASSWD: ALL
 HERE
 
+echo disallowing root ssh login
+/bin/sed 's/PermitRootLogin\s\+yes/PermitRootLogin no/' /etc/ssh/sshd_config > /tmp/sshd_config
+/bin/mv /tmp/sshd_config /etc/ssh/sshd_config
+/usr/sbin/service ssh restart
+
 echo upgrading kernel
 /usr/bin/apt-get -y dist-upgrade
 
-/bin/rm -f /root/post-setup
+/bin/rm -f /etc/init.d/post-setup /etc/rc5.d/S00post-setup
 PP
+/bin/chmod 755 /etc/init.d/post-setup
+/bin/ln -s /etc/init.d/post-setup /etc/rc5.d/S00post-setup
 
 echo preparing upgrade script
 /bin/cat <<HERE > /tmp/upgrade.sh
@@ -71,7 +78,7 @@ echo preparing upgrade script
 echo setting up post-setups in /etc/rc.local
 /bin/cat <<PP >> /etc/rc.local
 
-/bin/sh /root/post-setup
+/bin/sh /etc/init.d/post-setup
 PP
 
 echo updating pkg list...
@@ -113,9 +120,5 @@ echo entering screen to start system upgrade process
 echo release upgrading
 /usr/bin/do-release-upgrade -m server
 
-echo disallowing root ssh login
-/bin/sed 's/PermitRootLogin\s\+yes/PermitRootLogin no/' /etc/ssh/sshd_config > /tmp/sshd_config
-/bin/mv /tmp/sshd_config /etc/ssh/sshd_config
-
-echo all done and about to reboot, type[1m /sbin/reboot [mto do it
-# /sbin/reboot
+echo all done and do-release-upgrade should have issued reboot
+echo enter [1m/sbin/reboot[m if not
