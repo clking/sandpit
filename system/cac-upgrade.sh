@@ -109,8 +109,8 @@ echo generating a screen rc to open up and run
 sessionname upgrade
 
 screen top -c -d 1
-screen /tmp/upgrade.sh
 screen /bin/su clk -c /bin/sh -c 'cd /home/clk ; /bin/sh -c "\$(/usr/bin/curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"'
+screen /tmp/upgrade.sh
 HERE
 
 # use screen here instead of tmux because the upgrade breaks tmux from resuming
