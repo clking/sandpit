@@ -69,7 +69,7 @@ echo upgrading kernel
 /bin/rm -f /etc/init.d/post-setup /etc/rc5.d/S00post-setup
 PP
 /bin/chmod 755 /etc/init.d/post-setup
-/bin/ln -s /etc/init.d/post-setup /etc/rc5.d/S00post-setup
+cd /etc/rc5.d && /bin/ln -s /etc/init.d/post-setup S00post-setup
 
 echo preparing upgrade script
 /bin/cat <<HERE > /tmp/upgrade.sh
