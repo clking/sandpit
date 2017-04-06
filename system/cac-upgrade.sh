@@ -8,9 +8,10 @@ uid=5566
 gid=9487
 userid=clk
 
-# remove this manually
+# ================================================ remove this manually ================================================
 echo an interactive shell is needed and edit $0 manually
 exit 3
+# ================================================ remove this manually ================================================
 
 # can only be run as root
 id=`/usr/bin/id -u`
@@ -53,6 +54,16 @@ echo installing git and zsh
 
 echo generating post-setup script after reboot
 /bin/cat <<PP > /etc/init.d/post-setup
+#! /bin/sh
+
+### BEGIN INIT INFO
+# Provides:             post-setup
+# Required-Start:       $remote_fs $syslog
+# Required-Stop:        $remote_fs $syslog
+# Default-Start:        5
+# Default-Stop:
+# Short-Description:    unattended setup post-reboot
+
 echo adding sudoers
 /bin/cat <<HERE >> /etc/sudoers
 %clk   ALL=(ALL:ALL) NOPASSWD: ALL
@@ -69,7 +80,7 @@ echo upgrading kernel
 /bin/rm -f /etc/init.d/post-setup /etc/rc5.d/S00post-setup
 PP
 /bin/chmod 755 /etc/init.d/post-setup
-cd /etc/rc5.d && /bin/ln -s /etc/init.d/post-setup S00post-setup
+/usr/sbin/update-rc.d post-setup start 00 5 .
 
 echo preparing upgrade script
 /bin/cat <<HERE > /tmp/upgrade.sh
