@@ -58,8 +58,8 @@ echo generating post-setup script after reboot
 
 ### BEGIN INIT INFO
 # Provides:             post-setup
-# Required-Start:       $remote_fs $syslog
-# Required-Stop:        $remote_fs $syslog
+# Required-Start:       \$remote_fs \$syslog
+# Required-Stop:        \$remote_fs \$syslog
 # Default-Start:        5
 # Default-Stop:
 # Short-Description:    unattended setup post-reboot
