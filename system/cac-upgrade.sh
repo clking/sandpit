@@ -80,7 +80,8 @@ echo upgrading kernel
 /bin/rm -f /etc/init.d/post-setup /etc/rc5.d/S00post-setup
 PP
 /bin/chmod 755 /etc/init.d/post-setup
-/usr/sbin/update-rc.d post-setup start 00 5 .
+runlevel=`/sbin/runlevel | cut -f2 -d' '`
+/usr/sbin/update-rc.d post-setup start 00 $runlevel .
 
 echo preparing upgrade script
 /bin/cat <<HERE > /tmp/upgrade.sh
